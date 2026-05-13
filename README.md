@@ -27,7 +27,7 @@ Welcome to **Flower-Prediction**, the most cracked 10-species flower classifier 
     ```
 3.  **Run the masterpiece:**
     ```bash
-    python iris_app.py
+    python app.py
     ```
 
 ---

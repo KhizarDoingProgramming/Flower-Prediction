@@ -17,8 +17,6 @@ def prepare_and_train():
         data = []
         for i, name in enumerate(flower_names):
             
-            # Generate positive values centered around i+2
-            # This makes each flower have a distinct "range"
             center = i + 2
             samples = np.random.normal(loc=center, scale=0.5, size=(100, 4))
             for s in samples:
@@ -92,7 +90,6 @@ class FlowerApp:
 
             user_values = [float(self.inputs[col].get()) for col in self.csv_columns]
             
-            # Scale the input just like the training data
             user_values_scaled = self.scaler.transform([user_values])
 
             prediction = self.model.predict(user_values_scaled)[0]
