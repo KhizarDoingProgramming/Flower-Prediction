@@ -1,31 +1,25 @@
 import pandas as pd
 import numpy as np
-import os
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
+import os
 
 
 def prepare_and_train():
-
     csv_file = "flowers_dataset.csv"
-    flower_names = ["Rose", "Tulip", "Sunflower", "Lily", "Daisy", "Orchid", "Iris", "Lavender", "Marigold", "Hibiscus"]
-
+    
     if not os.path.exists(csv_file):
-
-        data = []
-        for i, name in enumerate(flower_names):
-            
-            center = i + 2
-            samples = np.random.normal(loc=center, scale=0.5, size=(100, 4))
-            for s in samples:
-                data.append(list(np.abs(s)) + [name])
-        
-        df = pd.DataFrame(data, columns=["Petal_Size", "Sepal_Width", "Stem_Length", "Leaf_Width", "Flower_Type"])
-        df.to_csv(csv_file, index=False)
+        # If file is missing, we notify the user instead of making fake data
+        messagebox.showerror("Error", f"Dataset file '{csv_file}' not found!\nPlease ensure the dataset is in the same directory.")
+        return None, None, []
 
     df = pd.read_csv(csv_file)
+    
+    # Dynamically get species names from CSV
+    flower_names = sorted(df['Flower_Type'].unique().tolist())
+    
     X = df.drop('Flower_Type', axis=1)
     y = df['Flower_Type']
 
@@ -41,47 +35,73 @@ def prepare_and_train():
 class FlowerApp:
 
     def __init__(self, root):
-
         self.root = root
-        self.root.title("Mega Flower Predictor (CSV Edition)")
-        self.root.geometry("450x700")
-        self.root.configure(bg="#f4f4f9")
+        self.root.title("Flower Predictor Pro")
+        self.root.geometry("500x750")
+        self.root.configure(bg="#1e1e2f") # Dark premium theme
 
+        # Load model
         self.model, self.scaler, self.target_names = prepare_and_train()
+        
+        if self.model is None:
+            self.root.destroy()
+            return
 
-        tk.Label(root, text="Multi-Flower Classification", font=("Arial", 18, "bold"), bg="#f4f4f9", fg="#2c3e50").pack(pady=20)
+        # Header
+        header_frame = tk.Frame(root, bg="#2d2d44", height=100)
+        header_frame.pack(fill="x")
+        
+        tk.Label(header_frame, text="🌸 Flower Classifier", font=("Helvetica", 24, "bold"), 
+                 bg="#2d2d44", fg="#a5a5ff").pack(pady=20)
 
-        input_frame = tk.Frame(root, bg="#f4f4f9")
-        input_frame.pack(pady=10)
+        # Main Content
+        main_frame = tk.Frame(root, bg="#1e1e2f")
+        main_frame.pack(expand=True, fill="both", padx=40, pady=20)
+
+        tk.Label(main_frame, text="Enter Flower Measurements", font=("Helvetica", 12), 
+                 bg="#1e1e2f", fg="#8888aa").pack(pady=(0, 20))
 
         self.inputs = {}
-        self.feature_list = ["Petal Size", "Sepal Width", "Stem Length", "Leaf Width"]
         self.csv_columns = ["Petal_Size", "Sepal_Width", "Stem_Length", "Leaf_Width"]
+        self.display_names = ["Petal Size", "Sepal Width", "Stem Length", "Leaf Width"]
 
-        for i, feature in enumerate(self.feature_list):
-
-            row = tk.Frame(input_frame, bg="#f4f4f9")
-            row.pack(fill="x", pady=8)
-
-            tk.Label(row, text=f"{feature} (1-12):", width=15, anchor="w", font=("Arial", 10), bg="#f4f4f9").pack(side="left", padx=20)
-            entry = tk.Entry(row, font=("Arial", 10))
-            entry.pack(side="right", expand=True, fill="x", padx=20)
+        for i, feature in enumerate(self.display_names):
+            label_text = feature
+            
+            tk.Label(main_frame, text=label_text, font=("Helvetica", 10, "bold"), 
+                     bg="#1e1e2f", fg="#ffffff").pack(anchor="w", pady=(10, 2))
+            
+            entry = tk.Entry(main_frame, font=("Helvetica", 12), bg="#2d2d44", fg="white", 
+                             insertbackground="white", bd=0, highlightthickness=1)
+            entry.config(highlightbackground="#444466", highlightcolor="#a5a5ff")
+            entry.pack(fill="x", ipady=8, pady=(0, 10))
             self.inputs[self.csv_columns[i]] = entry
 
-        predict_btn = tk.Button(root, text="Identify Flower", command=self.predict, 
-                               bg="#3498db", fg="white", font=("Arial", 12, "bold"), padx=30, pady=12, bd=0)
-        predict_btn.pack(pady=20)
+        # Predict Button
+        self.predict_btn = tk.Button(main_frame, text="IDENTIFY SPECIES", command=self.predict, 
+                                    bg="#6c5ce7", fg="white", font=("Helvetica", 12, "bold"), 
+                                    activebackground="#5849be", activeforeground="white",
+                                    cursor="hand2", bd=0, pady=15)
+        self.predict_btn.pack(fill="x", pady=30)
 
-        self.result_label = tk.Label(root, text="Result: ---", font=("Arial", 16, "bold"), bg="#f4f4f9", fg="#7f8c8d")
-        self.result_label.pack(pady=10)
+        # Result Area
+        self.result_card = tk.Frame(main_frame, bg="#2d2d44", padx=20, pady=20)
+        self.result_card.pack(fill="x")
 
-        tk.Label(root, text="Try values between 2 and 11!", font=("Arial", 9, "italic"), bg="#f4f4f9", fg="#e67e22").pack()
+        self.result_label = tk.Label(self.result_card, text="Ready for Analysis", 
+                                     font=("Helvetica", 14, "bold"), bg="#2d2d44", fg="#8888aa")
+        self.result_label.pack()
+
+        # Footer / Supported Species
+        footer_frame = tk.Frame(root, bg="#1e1e2f", pady=20)
+        footer_frame.pack(fill="x")
         
-        tk.Label(root, text="Example: Rose (2,2,2,2) | Hibiscus (11,11,11,11)", font=("Arial", 8), bg="#f4f4f9", fg="#7f8c8d").pack(pady=5)
-
-        tk.Label(root, text="Supported Flowers:", font=("Arial", 10, "underline"), bg="#f4f4f9").pack(pady=10)
-        species_text = ", ".join(self.target_names)
-        tk.Label(root, text=species_text, font=("Arial", 9), bg="#f4f4f9", fg="#34495e", wraplength=400).pack()
+        tk.Label(footer_frame, text="Supported Species:", font=("Helvetica", 9, "bold"), 
+                 bg="#1e1e2f", fg="#444466").pack()
+        
+        species_text = " • ".join(self.target_names)
+        tk.Label(footer_frame, text=species_text, font=("Helvetica", 8), 
+                 bg="#1e1e2f", fg="#666688", wraplength=400).pack(pady=5)
 
 
     def predict(self):
@@ -93,9 +113,10 @@ class FlowerApp:
             user_values_scaled = self.scaler.transform([user_values])
 
             prediction = self.model.predict(user_values_scaled)[0]
-
-            self.result_label.config(text=f"Result: {prediction}", fg="#27ae60")
-            messagebox.showinfo("Prediction Result", f"This flower is identified as a {prediction}!")
+            
+            self.result_label.config(text=f"Match Found: {prediction}", fg="#00ff88")
+            self.result_card.config(highlightthickness=2, highlightbackground="#00ff88")
+            messagebox.showinfo("Result", f"This flower is definitely a {prediction}! 🌸")
 
         except ValueError:
 

@@ -8,9 +8,9 @@ Welcome to **Flower-Prediction**, the most cracked 10-species flower classifier 
 
 ## 🚀 The Vibe Check (Features)
 
-*   **10 Species Recognition**: We're not just doing Iris anymore. Rose, Tulip, Sunflower, Hibiscus... we got the whole garden covered. 🌻
-*   **CSV Driven**: All the data lives in `flowers_dataset.csv`. It's clean, it's organized, it's giving main character energy. 📊
-*   **Clean GUI**: A sleek Tkinter interface that doesn't look like it's from 1995. 🖥️
+*   **10 Species Recognition**: Rose, Tulip, Sunflower, Hibiscus, and more. 🌻
+*   **Purely CSV Driven**: No fake data generation. Just clean, real data from `flowers_dataset.csv`. 📊
+*   **Premium Dark UI**: A sleek, modern interface with high-contrast visuals. 🖥️
 *   **Zero Comments**: The code is so clean it speaks for itself. 🧼
 
 ---
