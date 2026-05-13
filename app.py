@@ -11,13 +11,11 @@ def prepare_and_train():
     csv_file = "flowers_dataset.csv"
     
     if not os.path.exists(csv_file):
-        # If file is missing, we notify the user instead of making fake data
         messagebox.showerror("Error", f"Dataset file '{csv_file}' not found!\nPlease ensure the dataset is in the same directory.")
         return None, None, []
 
     df = pd.read_csv(csv_file)
     
-    # Dynamically get species names from CSV
     flower_names = sorted(df['Flower_Type'].unique().tolist())
     
     X = df.drop('Flower_Type', axis=1)
@@ -38,23 +36,20 @@ class FlowerApp:
         self.root = root
         self.root.title("Flower Predictor Pro")
         self.root.geometry("500x750")
-        self.root.configure(bg="#1e1e2f") # Dark premium theme
+        self.root.configure(bg="#1e1e2f")
 
-        # Load model
         self.model, self.scaler, self.target_names = prepare_and_train()
         
         if self.model is None:
             self.root.destroy()
             return
 
-        # Header
         header_frame = tk.Frame(root, bg="#2d2d44", height=100)
         header_frame.pack(fill="x")
         
         tk.Label(header_frame, text="🌸 Flower Classifier", font=("Helvetica", 24, "bold"), 
                  bg="#2d2d44", fg="#a5a5ff").pack(pady=20)
 
-        # Main Content
         main_frame = tk.Frame(root, bg="#1e1e2f")
         main_frame.pack(expand=True, fill="both", padx=40, pady=20)
 
@@ -77,14 +72,12 @@ class FlowerApp:
             entry.pack(fill="x", ipady=8, pady=(0, 10))
             self.inputs[self.csv_columns[i]] = entry
 
-        # Predict Button
-        self.predict_btn = tk.Button(main_frame, text="IDENTIFY SPECIES", command=self.predict, 
+        self.predict_btn = tk.Button(main_frame, text="IDENTIFY SPECIES", command=self.predict,
                                     bg="#6c5ce7", fg="white", font=("Helvetica", 12, "bold"), 
                                     activebackground="#5849be", activeforeground="white",
                                     cursor="hand2", bd=0, pady=15)
         self.predict_btn.pack(fill="x", pady=30)
 
-        # Result Area
         self.result_card = tk.Frame(main_frame, bg="#2d2d44", padx=20, pady=20)
         self.result_card.pack(fill="x")
 
@@ -92,7 +85,6 @@ class FlowerApp:
                                      font=("Helvetica", 14, "bold"), bg="#2d2d44", fg="#8888aa")
         self.result_label.pack()
 
-        # Footer / Supported Species
         footer_frame = tk.Frame(root, bg="#1e1e2f", pady=20)
         footer_frame.pack(fill="x")
         
